@@ -48,13 +48,13 @@ class RepoArmourServer(SocketServer.BaseRequestHandler):
     def update(self, project, branch):
         # with open('remotes') as remotes:
         remotes = {
-            'bake': ('https://github.com/eZanmoto/', 'Bake')
+            'practice': ('https://github.com/eZanmoto/', 'practice')
         }
 
         # 2.
         with chdir(tempfile.mkdtemp(dir=tmpdir_path)) as cwd:
             # 3.
-            print commands.getoutput("git clone --bare %s/%s.git" % remotes[project])
+            print commands.getoutput("git clone --bare %s%s.git" % remotes[project])
 
             # 4.
             location = os.path.join(cwd, remotes[project][1]+'.git')
