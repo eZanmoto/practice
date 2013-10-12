@@ -39,8 +39,9 @@ class RepoArmourServer(SocketServer.BaseRequestHandler):
         project, branch = self.request.recv(1024).strip().split(':')
 
         try:
-            self.update(project, branch)
-            output = "success"
+            output = self.update(project, branch)
+            if output is None:
+                output = "success"
         except Exception as ex:
             output = "error: " + str(ex)
         self.request.sendall(output)
@@ -68,13 +69,16 @@ class RepoArmourServer(SocketServer.BaseRequestHandler):
 
             # 6.
             with chdir(remotes[project][1]):
-                print commands.getoutput("ls")
+                status = commands.getstatusoutput("make")
             commands.getoutput("rm -rf %s" % remotes[project][1])
 
             # 7.
-            with chdir(remotes[project][1]+'.git'):
-                print commands.getoutput("git push -u origin master")
+            if status[0] == 0:
+                with chdir(remotes[project][1]+'.git'):
+                    print commands.getoutput("git push -u origin master")
             commands.getoutput("rm -rf %s.git" % remotes[project][1])
+            if status[0] != 0:
+                return "check failed: %s" % status[1]
 
 
 if __name__ == '__main__':
